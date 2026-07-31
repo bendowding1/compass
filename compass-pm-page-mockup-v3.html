@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass — PM project page (milestone-centric + customer + responsible)</title>
+<style>
+  :root{
+    --bg:#FBFAF8; --surface:#FFFFFF; --ink:#1A1D21; --soft:#626871; --faint:#9AA0A8;
+    --line:#E7E4DE; --line2:#EFEDE8;
+    --accent:#0F766E; --accent-tint:#E5F1EF;
+    --slip:#B4541E; --slip-tint:#F6E9E1;
+    --plan:#8A8F97; --plan-tint:#F0EEE9;
+    --upcoming:#C7C2B8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  .app{max-width:1180px;margin:0 auto;padding:0 28px}
+  .top{display:flex;align-items:center;gap:18px;height:52px;border-bottom:1px solid var(--line)}
+  .mark{font-weight:700;letter-spacing:-.02em;color:var(--accent);font-size:16px}
+  .crumb{color:var(--soft);font-size:13px}.crumb b{color:var(--ink);font-weight:600}
+  .top .spacer{flex:1}
+  .avatar{width:26px;height:26px;border-radius:50%;background:#D9D4CB;display:grid;place-items:center;font-size:11px;font-weight:600;color:#4A4640}
+  .head{padding:26px 0 6px}
+  .pname{font-size:32px;font-weight:700;letter-spacing:-.025em;line-height:1.05;margin:0}
+  .meta{display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap}
+  /* customer chip (from predefined list) */
+  .cust{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 11px;font-size:13px}
+  .cust .clab{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)}
+  .cust .cval{font-weight:600}
+  .cust .car{color:var(--faint);font-size:10px;margin-left:2px}
+  .cust .bld{width:16px;height:16px;border-radius:4px;background:var(--accent-tint);display:grid;place-items:center;color:var(--accent);font-size:10px;font-weight:700}
+  .lifelab{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);align-self:center}
+  .life{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:12px;font-weight:600}
+  .life span{padding:5px 12px;color:var(--faint);background:var(--surface)}
+  .life span.on{background:var(--accent);color:#fff}
+  .stamp{margin-left:auto;color:var(--faint);font-size:12.5px;display:flex;align-items:center;gap:7px}
+  .stamp .ic{width:6px;height:6px;border-radius:50%;background:var(--upcoming)}
+  .seclab{display:flex;align-items:baseline;gap:10px;margin:30px 0 14px}
+  h2.sec{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--soft);font-weight:700;margin:0}
+  .seclab .sub{font-size:12px;color:var(--faint)}
+  .split{display:flex;gap:30px;align-items:flex-start}
+  .main{flex:1;min-width:0}.rail{width:280px;flex-shrink:0}
+  /* responsible panel */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:6px 14px 10px}
+  .trow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2)}
+  .trow:last-child{border-bottom:none}
+  .trole{width:104px;flex-shrink:0;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:600}
+  .tav{width:24px;height:24px;border-radius:50%;background:#E7E0D4;display:grid;place-items:center;font-size:10px;font-weight:700;color:#5A5346}
+  .tname{font-weight:600;font-size:13px}
+  .tname.empty{color:var(--faint);font-weight:500;font-style:italic}
+  /* milestone card */
+  .ms{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:16px 18px;margin-bottom:13px}
+  .ms.cur{border-color:var(--slip);box-shadow:0 0 0 3px var(--slip-tint)}
+  .ms-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .ms-name{font-size:16px;font-weight:700;letter-spacing:-.01em}
+  .ms-scope{color:var(--faint);font-size:12.5px;font-weight:500}
+  .ms-right{text-align:right;white-space:nowrap}
+  .st{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px}
+  .st.shipped{background:var(--accent-tint);color:#0B5650}
+  .st.test{background:var(--slip-tint);color:var(--slip)}
+  .st.planned{background:var(--plan-tint);color:var(--plan)}
+  .ms-date{display:block;color:var(--faint);font-size:12px;margin-top:5px}
+  .steps{display:flex;margin-top:16px}
+  .step{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center}
+  .step:not(:first-child):before{content:"";position:absolute;left:-50%;right:50%;top:13px;height:2px;background:var(--line)}
+  .step.done:before,.step.cur:before{background:var(--accent)}
+  .knob{width:28px;height:28px;border-radius:50%;background:var(--surface);border:2px solid var(--upcoming);display:grid;place-items:center;font-size:12px;color:var(--faint);font-weight:700;position:relative;z-index:1}
+  .step.done .knob{background:var(--accent);border-color:var(--accent);color:#fff}
+  .step.cur .knob{border-color:var(--slip);color:var(--slip);box-shadow:0 0 0 4px var(--slip-tint)}
+  .step .sl{margin-top:8px;font-size:12px;font-weight:600}
+  .step.up .sl{color:var(--faint)}
+  .step.cur .sl{color:var(--slip)}
+  .step .sd{font-size:11px;color:var(--faint);margin-top:1px}
+  .doc{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line2)}
+  .doc .dt{flex:1;color:var(--ink);font-size:13px}
+  .doc .src{font-size:11px;color:var(--faint);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+  .doc .ext{color:var(--faint);font-size:12px}
+  .divlabel{margin:48px 0 0;text-align:center;color:var(--faint);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+  .empty-box{border:1px dashed var(--line);border-radius:11px;padding:20px;background:#FCFBF9;color:var(--soft);font-size:13px}
+  .empty-box p{margin:0 0 14px;max-width:46ch}
+  .btn{display:inline-flex;align-items:center;gap:7px;background:var(--accent);color:#fff;font-weight:600;font-size:12.5px;border:none;border-radius:8px;padding:9px 14px;cursor:pointer}
+  .cust.empty .cval{color:var(--faint);font-weight:500;font-style:italic}
+  .frame{padding-bottom:38px}
+</style>
+</head>
+<body>
+
+<!-- ===== LIVE PROJECT ===== -->
+<div class="app frame">
+  <div class="top"><span class="mark">Compass</span><span class="crumb">Projects / <b>Apollo Field Unit v2</b></span><span class="spacer"></span><span class="avatar">BD</span></div>
+  <div class="head">
+    <h1 class="pname">Apollo Field Unit v2</h1>
+    <div class="meta">
+      <span class="cust"><span class="bld">&#9632;</span><span class="clab">Customer</span><span class="cval">Northwind Energy</span><span class="car">&#9662;</span></span>
+      <span class="lifelab">Lifecycle</span>
+      <span class="life"><span class="on">NPD</span><span>Sustaining</span><span>Closed</span></span>
+      <span class="stamp"><span class="ic"></span>Updated by Ben Dowding · 24 Jun 2026</span>
+    </div>
+  </div>
+
+  <div class="split">
+    <div class="main">
+      <div class="seclab"><h2 class="sec">Milestones</h2><span class="sub">every milestone delivers a release · Requirements &#8594; Build &#8594; Test &#8594; Deploy</span></div>
+
+      <div class="ms cur">
+        <div class="ms-top">
+          <div><span class="ms-name">Release 2.2</span> &nbsp;<span class="ms-scope">OTA flow, sensor calibration · 4 items</span></div>
+          <div class="ms-right"><span class="st test">In Test · late 1w</span><span class="ms-date">target 27 Jun</span></div>
+        </div>
+        <div class="steps">
+          <div class="step done"><div class="knob">&#10003;</div><div class="sl">Requirements</div><div class="sd">done 12 May</div></div>
+          <div class="step done"><div class="knob">&#10003;</div><div class="sl">Build</div><div class="sd">done 18 Jun</div></div>
+          <div class="step cur"><div class="knob">&#9679;</div><div class="sl">Test</div><div class="sd">on devices</div></div>
+          <div class="step up"><div class="knob">4</div><div class="sl">Deploy</div><div class="sd">to field</div></div>
+        </div>
+      </div>
+
+      <div class="ms">
+        <div class="ms-top">
+          <div><span class="ms-name">Release 2.3</span> &nbsp;<span class="ms-scope">Battery telemetry, remote diagnostics · 2 items</span></div>
+          <div class="ms-right"><span class="st planned">Planned</span><span class="ms-date">target 11 Jul</span></div>
+        </div>
+        <div class="steps">
+          <div class="step cur"><div class="knob">&#9679;</div><div class="sl">Requirements</div><div class="sd">gathering</div></div>
+          <div class="step up"><div class="knob">2</div><div class="sl">Build</div><div class="sd">&mdash;</div></div>
+          <div class="step up"><div class="knob">3</div><div class="sl">Test</div><div class="sd">&mdash;</div></div>
+          <div class="step up"><div class="knob">4</div><div class="sl">Deploy</div><div class="sd">&mdash;</div></div>
+        </div>
+      </div>
+
+      <div class="ms">
+        <div class="ms-top">
+          <div><span class="ms-name">Release 2.1</span> &nbsp;<span class="ms-scope">2 items</span></div>
+          <div class="ms-right"><span class="st shipped">Shipped</span><span class="ms-date">delivered 28 May</span></div>
+        </div>
+        <div class="steps">
+          <div class="step done"><div class="knob">&#10003;</div><div class="sl">Requirements</div></div>
+          <div class="step done"><div class="knob">&#10003;</div><div class="sl">Build</div></div>
+          <div class="step done"><div class="knob">&#10003;</div><div class="sl">Test</div></div>
+          <div class="step done"><div class="knob">&#10003;</div><div class="sl">Deploy</div></div>
+        </div>
+      </div>
+
+      <div class="ms">
+        <div class="ms-top">
+          <div><span class="ms-name">Release 2.0 &middot; Field Pilot</span> &nbsp;<span class="ms-scope">4 items</span></div>
+          <div class="ms-right"><span class="st shipped">Shipped</span><span class="ms-date">delivered 30 Apr</span></div>
+        </div>
+        <div class="steps">
+          <div class="step done"><div class="knob">&#10003;</div><div class="sl">Requirements</div></div>
+          <div class="step done"><div class="knob">&#10003;</div><div class="sl">Build</div></div>
+          <div class="step done"><div class="knob">&#10003;</div><div class="sl">Test</div></div>
+          <div class="step done"><div class="knob">&#10003;</div><div class="sl">Deploy</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rail">
+      <div class="seclab" style="margin-top:0"><h2 class="sec">Responsible</h2></div>
+      <div class="card">
+        <div class="trow"><span class="trole">PM</span><span class="tav">BD</span><span class="tname">Ben Dowding</span></div>
+        <div class="trow"><span class="trole">Development</span><span class="tav">AK</span><span class="tname">Aisha Khan</span></div>
+        <div class="trow"><span class="trole">Test</span><span class="tav">MR</span><span class="tname">Marco Reyes</span></div>
+        <div class="trow"><span class="trole">Deploy</span><span class="tav">SP</span><span class="tname">Sam Patel</span></div>
+        <div class="trow"><span class="trole">Customer Care</span><span class="tav">LR</span><span class="tname">Lena Roth</span></div>
+      </div>
+
+      <div class="seclab"><h2 class="sec">Project docs</h2></div>
+      <div class="doc"><span class="dt">Apollo v2 &mdash; master spec</span><span class="src">SharePoint</span><span class="ext">&#8599;</span></div>
+      <div class="doc"><span class="dt">Customer field constraints</span><span class="src">SharePoint</span><span class="ext">&#8599;</span></div>
+      <div class="doc"><span class="dt">Board rev C &mdash; schematic</span><span class="src">SharePoint</span><span class="ext">&#8599;</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="divlabel">— Empty state · a brand-new project —</div>
+
+<!-- ===== EMPTY STATE ===== -->
+<div class="app frame">
+  <div class="top"><span class="mark">Compass</span><span class="crumb">Projects / <b>New Field Controller</b></span><span class="spacer"></span><span class="avatar">BD</span></div>
+  <div class="head">
+    <h1 class="pname">New Field Controller</h1>
+    <div class="meta">
+      <span class="cust empty"><span class="bld">&#9632;</span><span class="clab">Customer</span><span class="cval">Select customer</span><span class="car">&#9662;</span></span>
+      <span class="lifelab">Lifecycle</span>
+      <span class="life"><span class="on">NPD</span><span>Sustaining</span><span>Closed</span></span>
+      <span class="stamp"><span class="ic"></span>Created today</span>
+    </div>
+  </div>
+  <div class="split">
+    <div class="main">
+      <div class="seclab"><h2 class="sec">Milestones</h2><span class="sub">every milestone delivers a release</span></div>
+      <div class="empty-box">
+        <p>No milestones yet. In Compass, nothing happens outside a milestone &mdash; each one carries its own Requirements, Build, Test and Deploy and ends in a delivered release. Create the first to start.</p>
+        <button class="btn"><span>+</span> Create the first milestone</button>
+      </div>
+    </div>
+    <div class="rail">
+      <div class="seclab" style="margin-top:0"><h2 class="sec">Responsible</h2></div>
+      <div class="card">
+        <div class="trow"><span class="trole">PM</span><span class="tav">BD</span><span class="tname">Ben Dowding</span></div>
+        <div class="trow"><span class="trole">Development</span><span class="tav" style="background:#EFEDE8">?</span><span class="tname empty">Assign</span></div>
+        <div class="trow"><span class="trole">Test</span><span class="tav" style="background:#EFEDE8">?</span><span class="tname empty">Assign</span></div>
+        <div class="trow"><span class="trole">Deploy</span><span class="tav" style="background:#EFEDE8">?</span><span class="tname empty">Assign</span></div>
+        <div class="trow"><span class="trole">Customer Care</span><span class="tav" style="background:#EFEDE8">?</span><span class="tname empty">Assign</span></div>
+      </div>
+      <div class="seclab"><h2 class="sec">Project docs</h2></div>
+      <div class="empty-box"><p>Link the project brief and specs so the team stops hunting through email and SharePoint.</p><button class="btn"><span>+</span> Link a document</button></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

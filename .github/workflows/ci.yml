@@ -1,0 +1,29 @@
+name: CI
+
+# Lint, typecheck, test, and prove the production build compiles. Deploys are
+# not CI's job any more: Vercel's Git integration builds and ships every push
+# to main (and gives each PR its own preview deployment) — see
+# docs/deploy-vercel.md.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build

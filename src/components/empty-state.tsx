@@ -78,13 +78,37 @@ export function EmptyState({
 
           <div className="seclab">
             <h2 className="sec">Project docs</h2>
+            {project.docLinks.length > 0 && (
+              <Link
+                className="ms-edit"
+                href={`/projects/${project.id}/docs/edit`}
+                style={{ marginLeft: "auto" }}
+              >
+                Edit
+              </Link>
+            )}
           </div>
-          <div className="empty-box">
-            <p>Link the project brief and specs so the team stops hunting through email and SharePoint.</p>
-            <Link className="btn" href={`/projects/${project.id}/docs/edit`}>
-              <span>+</span> Link a document
-            </Link>
-          </div>
+          {project.docLinks.length === 0 ? (
+            <div className="empty-box">
+              <p>Link the project brief and specs so the team stops hunting through email and SharePoint.</p>
+              <Link className="btn" href={`/projects/${project.id}/docs/edit`}>
+                <span>+</span> Link a document
+              </Link>
+            </div>
+          ) : (
+            // Docs can be linked before the first milestone exists — this screen
+            // keys off milestones, so it must still render saved links (same
+            // markup as ProjectView; raw URL, no fetch, R7).
+            project.docLinks.map((d) => (
+              <div className="doc" key={d.id}>
+                <a className="dt" href={d.url}>
+                  {d.label}
+                </a>
+                <span className="src">SharePoint</span>
+                <span className="ext">{"↗"}</span>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

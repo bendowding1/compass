@@ -34,4 +34,26 @@ describe("EmptyState (the adoption screen)", () => {
     render(<EmptyState project={project} />);
     expect(screen.getAllByText(/assign/i)).toHaveLength(5);
   });
+
+  it("shows saved doc links even before the first milestone exists", () => {
+    const withDocs = {
+      ...project,
+      docLinks: [
+        { id: "brief", label: "Project brief", url: "https://example.sharepoint.com/brief" },
+        { id: "spec", label: "Firmware spec", url: "https://example.sharepoint.com/spec" },
+      ],
+    };
+    render(<EmptyState project={withDocs} />);
+
+    expect(screen.getByRole("link", { name: "Project brief" })).toHaveAttribute(
+      "href",
+      "https://example.sharepoint.com/brief",
+    );
+    expect(screen.getByRole("link", { name: "Firmware spec" })).toBeInTheDocument();
+
+    // once docs exist, the adoption CTA gives way to a plain Edit link
+    expect(screen.queryByRole("link", { name: /link a document/i })).not.toBeInTheDocument();
+    const editLinks = screen.getAllByRole("link", { name: "Edit" });
+    expect(editLinks.map((l) => l.getAttribute("href"))).toContain("/projects/greenfield/docs/edit");
+  });
 });

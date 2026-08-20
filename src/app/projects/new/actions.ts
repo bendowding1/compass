@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { newProject, LifecycleStatus } from "@/lib/schema/project";
 import { getProject, writeProject } from "@/lib/git/projects";
 import { readCustomers, addCustomer } from "@/lib/git/customers";
-import { slugify } from "@/lib/format";
+import { randomProjectId } from "@/lib/id";
 import { friendlyError } from "@/lib/friendly-error";
 import { currentAuthor } from "@/lib/auth/current-user";
 
@@ -35,9 +35,8 @@ export async function createProject(_prev: CreateState, formData: FormData): Pro
       if (!customers.some((c) => c.id === customerId)) return { error: "Unknown customer." };
     }
 
-    const base = slugify(name) || "project";
-    let id = base;
-    for (let n = 2; await getProject(id); n++) id = `${base}-${n}`;
+    let id = randomProjectId();
+    while (await getProject(id)) id = randomProjectId();
     createdId = id;
 
     const stamp = { by: author.name, at: new Date().toISOString() };

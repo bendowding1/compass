@@ -12,15 +12,23 @@ vi.mock("next/link", () => ({
 }));
 
 const rows: ProjectRow[] = [
-  { id: "a", name: "Acme Telemetry", customerName: "Acme Industrial", lifecycleStatus: "NPD" },
-  { id: "b", name: "Northwind Sensors", customerName: "Northwind Traders", lifecycleStatus: "Sustaining" },
-  { id: "c", name: "Greenfield Pilot", customerName: "No customer", lifecycleStatus: "NPD" },
+  { id: "p-aaaa2222", name: "Acme Telemetry", customerId: "acme-industrial", customerName: "Acme Industrial", lifecycleStatus: "NPD" },
+  { id: "p-bbbb2222", name: "Acme Dashboard", customerId: "acme-industrial", customerName: "Acme Industrial", lifecycleStatus: "Sustaining" },
+  { id: "p-cccc2222", name: "Northwind Sensors", customerId: "northwind-traders", customerName: "Northwind Traders", lifecycleStatus: "Sustaining" },
+  { id: "p-dddd2222", name: "Greenfield Pilot", customerId: "", customerName: "No customer", lifecycleStatus: "NPD" },
 ];
+
+function selectCustomer(optionName: string | RegExp) {
+  const option = screen.getByRole("option", { name: optionName }) as HTMLOptionElement;
+  fireEvent.change(screen.getByRole("combobox", { name: /filter by customer/i }), {
+    target: { value: option.value },
+  });
+}
 
 describe("ProjectsBrowser", () => {
   it("lists all projects initially", () => {
     render(<ProjectsBrowser projects={rows} />);
-    expect(screen.getAllByRole("link")).toHaveLength(3);
+    expect(screen.getAllByRole("link")).toHaveLength(4);
   });
 
   it("searches by name or customer, case-insensitive", () => {
@@ -35,10 +43,43 @@ describe("ProjectsBrowser", () => {
 
   it("filters by lifecycle status", () => {
     render(<ProjectsBrowser projects={rows} />);
+    fireEvent.click(screen.getByRole("button", { name: "NPD" }));
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(2);
+    expect(links[0]).toHaveTextContent("Acme Telemetry");
+    expect(links[1]).toHaveTextContent("Greenfield Pilot");
+  });
+
+  it("offers each customer once, alphabetized, with a No-customer bucket last", () => {
+    render(<ProjectsBrowser projects={rows} />);
+    const options = screen.getAllByRole("option").map((o) => o.textContent);
+    expect(options).toEqual(["All customers", "Acme Industrial", "Northwind Traders", "No customer"]);
+  });
+
+  it("filters by customer", () => {
+    render(<ProjectsBrowser projects={rows} />);
+    selectCustomer("Acme Industrial");
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(2);
+    expect(links[0]).toHaveTextContent("Acme Telemetry");
+    expect(links[1]).toHaveTextContent("Acme Dashboard");
+  });
+
+  it("filters to projects with no customer", () => {
+    render(<ProjectsBrowser projects={rows} />);
+    selectCustomer("No customer");
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveTextContent("Greenfield Pilot");
+  });
+
+  it("combines customer and status filters", () => {
+    render(<ProjectsBrowser projects={rows} />);
+    selectCustomer("Acme Industrial");
     fireEvent.click(screen.getByRole("button", { name: "Sustaining" }));
     const links = screen.getAllByRole("link");
     expect(links).toHaveLength(1);
-    expect(links[0]).toHaveTextContent("Northwind Sensors");
+    expect(links[0]).toHaveTextContent("Acme Dashboard");
   });
 
   it("combines search and status filter", () => {

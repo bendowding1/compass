@@ -511,7 +511,7 @@ h2.sec {
   font-size: 12.5px;
 }
 
-/* projects toolbar: search + lifecycle filter */
+/* projects toolbar: search + customer + lifecycle filters */
 .toolbar {
   display: flex;
   align-items: center;
@@ -534,6 +534,21 @@ h2.sec {
   color: var(--faint);
 }
 .search:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.select {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  font-family: inherit;
+  max-width: 220px;
+}
+.select:focus {
   outline: none;
   border-color: var(--accent);
 }

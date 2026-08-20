@@ -34,17 +34,33 @@ beforeEach(() => {
 describe("createProject action", () => {
   it("creates with an existing customer and redirects to the new project", async () => {
     readCustomers.mockResolvedValue([{ id: "cust-acme", name: "Acme" }]);
-    getProject.mockResolvedValue(null); // the slug id is free
+    getProject.mockResolvedValue(null); // the random id is free
     writeProject.mockResolvedValue({ sha: "s" });
 
     await createProject({}, fd({ name: "New Thing", customerId: "cust-acme", lifecycleStatus: "NPD" }));
 
     expect(writeProject).toHaveBeenCalledTimes(1);
     const [proj] = writeProject.mock.calls[0];
-    expect(proj.id).toBe("new-thing");
+    expect(proj.id).toMatch(/^p-[a-z0-9]{8}$/); // opaque id, not derived from the name
+    expect(proj.name).toBe("New Thing");
     expect(proj.customerId).toBe("cust-acme");
     expect(proj.lifecycleStatus).toBe("NPD");
-    expect(redirect).toHaveBeenCalledWith("/projects/new-thing");
+    expect(redirect).toHaveBeenCalledWith(`/projects/${proj.id}`);
+  });
+
+  it("regenerates the id if it is already taken", async () => {
+    readCustomers.mockResolvedValue([{ id: "cust-acme", name: "Acme" }]);
+    getProject
+      .mockResolvedValueOnce({ project: {}, sha: "x" }) // first candidate collides
+      .mockResolvedValue(null);
+    writeProject.mockResolvedValue({ sha: "s" });
+
+    await createProject({}, fd({ name: "New Thing", customerId: "cust-acme", lifecycleStatus: "NPD" }));
+
+    expect(getProject).toHaveBeenCalledTimes(2);
+    const [proj] = writeProject.mock.calls[0];
+    expect(proj.id).toMatch(/^p-[a-z0-9]{8}$/);
+    expect(proj.id).not.toBe(getProject.mock.calls[0][0]); // not the colliding one
   });
 
   it("requires a name", async () => {

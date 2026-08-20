@@ -11,12 +11,17 @@ export default async function HomePage() {
   const [projects, customers] = await Promise.all([listProjects(), readCustomers()]);
   const nameOf = (id: string) => customers.find((c) => c.id === id)?.name ?? "No customer";
 
-  const rows: ProjectRow[] = projects.map((p) => ({
-    id: p.id,
-    name: p.name,
-    customerName: nameOf(p.customerId),
-    lifecycleStatus: p.lifecycleStatus,
-  }));
+  // Ids are random, so the store's filename order is meaningless — order the
+  // list explicitly by display name.
+  const rows: ProjectRow[] = projects
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      customerId: p.customerId,
+      customerName: nameOf(p.customerId),
+      lifecycleStatus: p.lifecycleStatus,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 
   return (
     <div className="app frame">

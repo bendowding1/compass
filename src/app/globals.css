@@ -833,6 +833,42 @@ h2.sec {
   opacity: 0.6;
   cursor: default;
 }
+/* danger zone (delete project) */
+.danger-zone {
+  max-width: 460px;
+  margin-top: 36px;
+  padding: 16px 18px;
+  border: 1px solid var(--slip);
+  border-radius: 11px;
+}
+.danger-note {
+  color: var(--soft);
+  font-size: 13px;
+  margin: 8px 0 12px;
+  max-width: 46ch;
+}
+.danger-note b {
+  color: var(--ink);
+}
+.danger-row {
+  display: flex;
+  gap: 10px;
+}
+.danger-row input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--ink);
+}
+.danger-row input:focus {
+  outline: none;
+  border-color: var(--slip);
+}
 .stamp-link {
   color: var(--accent);
   text-decoration: none;

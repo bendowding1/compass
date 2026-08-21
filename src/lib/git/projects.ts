@@ -120,7 +120,8 @@ export async function writeProject(
   }
 }
 
-/** Archive (never hard-delete) a project. */
+/** Archive (soft-hide, reversible) a project. For permanent removal use
+ *  deleteProject below. */
 export async function archiveProject(
   id: string,
   author: { name: string; email: string },
@@ -128,4 +129,37 @@ export async function archiveProject(
   const current = await getProject(id);
   if (!current) return;
   await writeProject({ ...current.project, archived: true }, current.sha, author);
+}
+
+/**
+ * Hard-delete a project's document. Removing the file at HEAD makes the project
+ * vanish from the whole app — the list skips it and every /projects/[id] route
+ * 404s via getProject. Past versions deliberately remain in the data repo's git
+ * history (never shown in the app), so an admin can restore a deleted project
+ * from there; scripts/purge-project-history.mjs is the optional deep-scrub for
+ * the rare case that history itself must go. Returns false if absent.
+ */
+export async function deleteProject(
+  id: string,
+  author: { name: string; email: string },
+): Promise<boolean> {
+  const current = await getProject(id);
+  if (!current) return false;
+  const { owner, repo } = gitConfig();
+  try {
+    await octokit().rest.repos.deleteFile({
+      owner,
+      repo,
+      path: filePath(id),
+      message: `delete ${id}: ${current.project.name}`,
+      sha: current.sha,
+      author,
+      committer: author,
+    });
+  } catch (e) {
+    if (isConflict(e)) throw new ConflictError();
+    throw e;
+  }
+  clearCache();
+  return true;
 }

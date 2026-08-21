@@ -7,10 +7,13 @@ vi.mock("server-only", () => ({}));
 const getContent = vi.fn();
 const createOrUpdateFileContents = vi.fn();
 const listCommits = vi.fn();
+const deleteFile = vi.fn();
 
 vi.mock("@/lib/git/client", () => ({
   gitConfig: () => ({ owner: "o", repo: "r" }),
-  octokit: () => ({ rest: { repos: { getContent, createOrUpdateFileContents, listCommits } } }),
+  octokit: () => ({
+    rest: { repos: { getContent, createOrUpdateFileContents, listCommits, deleteFile } },
+  }),
   isNotFound: (e: { status?: number }) => e?.status === 404,
   isConflict: (e: { status?: number }) => e?.status === 409,
 }));
@@ -22,6 +25,7 @@ import {
   getProject,
   listProjects,
   writeProject,
+  deleteProject,
   getProjectHistory,
   ConflictError,
 } from "@/lib/git/projects";
@@ -49,6 +53,7 @@ beforeEach(() => {
   getContent.mockReset();
   createOrUpdateFileContents.mockReset();
   listCommits.mockReset();
+  deleteFile.mockReset();
   clearCache();
 });
 
@@ -100,6 +105,30 @@ describe("git projects adapter", () => {
     await expect(
       writeProject(project({ customerId: "ghost" }), undefined, { name: "n", email: "e" }),
     ).rejects.toThrow(/unknown customer/i);
+  });
+
+  it("deleteProject removes the file with the current blob sha", async () => {
+    getContent.mockResolvedValue({ data: { type: "file", sha: "cur", content: b64(project()) } });
+    deleteFile.mockResolvedValue({});
+    expect(await deleteProject("p1", { name: "n", email: "e" })).toBe(true);
+    const arg = deleteFile.mock.calls[0][0];
+    expect(arg.path).toBe("data/projects/p1.json");
+    expect(arg.sha).toBe("cur");
+    expect(arg.message).toContain("delete p1");
+  });
+
+  it("deleteProject returns false for a missing project without calling the API", async () => {
+    getContent.mockRejectedValue({ status: 404 });
+    expect(await deleteProject("ghost", { name: "n", email: "e" })).toBe(false);
+    expect(deleteFile).not.toHaveBeenCalled();
+  });
+
+  it("deleteProject maps a 409 to ConflictError (optimistic lock)", async () => {
+    getContent.mockResolvedValue({ data: { type: "file", sha: "stale", content: b64(project()) } });
+    deleteFile.mockRejectedValue({ status: 409 });
+    await expect(deleteProject("p1", { name: "n", email: "e" })).rejects.toBeInstanceOf(
+      ConflictError,
+    );
   });
 
   it("getProjectHistory maps commits to entries (first line, author, date)", async () => {

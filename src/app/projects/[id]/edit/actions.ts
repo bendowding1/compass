@@ -2,7 +2,12 @@
 
 import { redirect } from "next/navigation";
 import { LifecycleStatus } from "@/lib/schema/project";
-import { getProject, writeProject, ConflictError } from "@/lib/git/projects";
+import {
+  getProject,
+  writeProject,
+  ConflictError,
+  deleteProject as deleteProjectDoc,
+} from "@/lib/git/projects";
 import { readCustomers, addCustomer } from "@/lib/git/customers";
 import { friendlyError } from "@/lib/friendly-error";
 import { currentAuthor } from "@/lib/auth/current-user";
@@ -56,4 +61,33 @@ export async function updateProject(_prev: UpdateState, formData: FormData): Pro
   }
 
   redirect(`/projects/${id}`);
+}
+
+export type DeleteState = { error?: string };
+
+/**
+ * Permanently delete a project. Server Actions are public POST endpoints, so
+ * the type-the-name confirmation is re-checked here, not only in the UI.
+ */
+export async function deleteProject(_prev: DeleteState, formData: FormData): Promise<DeleteState> {
+  const id = String(formData.get("id") ?? "");
+  const confirmName = String(formData.get("confirmName") ?? "").trim();
+  if (!id) return { error: "Missing project id." };
+
+  try {
+    const author = await currentAuthor();
+    const current = await getProject(id);
+    if (!current) return { error: "Project not found." };
+    if (confirmName !== current.project.name) {
+      return { error: "Type the project name exactly to confirm deletion." };
+    }
+    await deleteProjectDoc(id, author);
+  } catch (e) {
+    if (e instanceof ConflictError) {
+      return { error: "This project changed since you opened it. Reload and try again." };
+    }
+    return { error: friendlyError(e, "Couldn't delete the project. Try again.") };
+  }
+
+  redirect("/");
 }

@@ -33,11 +33,13 @@ export async function getProject(id: string): Promise<ProjectWithSha | null> {
   }
 }
 
-/** All non-archived projects. Cached briefly (cleared on any write), since it
- *  fans out to one read per project; a few seconds of staleness on the list is
- *  fine, and writes clear the cache so you always see your own changes. */
-export async function listProjects(): Promise<Project[]> {
-  return cached("projects:list", async () => {
+/** Every project document, archived included — for reference counting (e.g.
+ *  "can this customer be deleted?"), where an archived project's references
+ *  still matter. Cached briefly (cleared on any write), since it fans out to
+ *  one read per project; a few seconds of staleness is fine, and writes clear
+ *  the cache so you always see your own changes. */
+export async function listAllProjects(): Promise<Project[]> {
+  return cached("projects:all", async () => {
     const { owner, repo } = gitConfig();
     let ids: string[] = [];
     try {
@@ -52,11 +54,13 @@ export async function listProjects(): Promise<Project[]> {
       throw e;
     }
     const loaded = await Promise.all(ids.map((id) => getProject(id)));
-    return loaded
-      .filter((r): r is ProjectWithSha => r !== null)
-      .map((r) => r.project)
-      .filter((p) => !p.archived);
+    return loaded.filter((r): r is ProjectWithSha => r !== null).map((r) => r.project);
   });
+}
+
+/** All non-archived projects — what the UI lists. */
+export async function listProjects(): Promise<Project[]> {
+  return (await listAllProjects()).filter((p) => !p.archived);
 }
 
 /** The project's change history — every edit is a commit on its JSON file. */

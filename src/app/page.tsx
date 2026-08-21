@@ -28,9 +28,14 @@ export default async function HomePage() {
       <TopBar />
       <div className="head head-row">
         <h1 className="pname">Projects</h1>
-        <Link className="btn" href="/projects/new">
-          + New project
-        </Link>
+        <span className="head-actions">
+          <Link className="btn-ghost" href="/customers">
+            Customers
+          </Link>
+          <Link className="btn" href="/projects/new">
+            + New project
+          </Link>
+        </span>
       </div>
       <ProjectsBrowser projects={rows} />
     </div>

@@ -73,3 +73,50 @@ export async function addCustomer(
   await writeCustomers([...customers, customer], sha ?? undefined, author);
   return customer;
 }
+
+/**
+ * Rename a customer in place. The id (what projects reference) stays stable,
+ * so the new name shows everywhere immediately — project pages, pickers,
+ * filters. Refuses a name another customer already has (case-insensitive).
+ */
+export async function renameCustomer(
+  id: string,
+  newName: string,
+  author: { name: string; email: string },
+): Promise<void> {
+  const trimmed = newName.trim();
+  if (!trimmed) throw new Error("Customer name is required");
+
+  const { customers, sha } = await readCustomersWithSha();
+  if (!customers.some((c) => c.id === id)) {
+    throw new Error("Customer not found. Reload and try again.");
+  }
+  const clash = customers.find(
+    (c) => c.id !== id && c.name.toLowerCase() === trimmed.toLowerCase(),
+  );
+  if (clash) throw new Error(`A customer named "${clash.name}" already exists.`);
+
+  await writeCustomers(
+    customers.map((c) => (c.id === id ? { ...c, name: trimmed } : c)),
+    sha ?? undefined,
+    author,
+  );
+}
+
+/**
+ * Remove a customer from the list. Callers must first move or clear any
+ * projects referencing the id (the delete action does), because a dangling
+ * reference would fail writeProject's validation on that project's next save.
+ */
+export async function removeCustomer(
+  id: string,
+  author: { name: string; email: string },
+): Promise<void> {
+  const { customers, sha } = await readCustomersWithSha();
+  if (!customers.some((c) => c.id === id)) return;
+  await writeCustomers(
+    customers.filter((c) => c.id !== id),
+    sha ?? undefined,
+    author,
+  );
+}

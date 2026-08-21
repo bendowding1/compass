@@ -24,6 +24,7 @@ vi.mock("@/lib/git/customers", () => ({
 import {
   getProject,
   listProjects,
+  listAllProjects,
   writeProject,
   deleteProject,
   getProjectHistory,
@@ -83,6 +84,20 @@ describe("git projects adapter", () => {
       .mockResolvedValueOnce({ data: { type: "file", sha: "2", content: b64(project({ id: "b", name: "B", archived: true })) } });
     const list = await listProjects();
     expect(list.map((p) => p.name)).toEqual(["A"]);
+  });
+
+  it("listAllProjects includes archived projects (for reference counting)", async () => {
+    getContent
+      .mockResolvedValueOnce({
+        data: [
+          { type: "file", name: "a.json" },
+          { type: "file", name: "b.json" },
+        ],
+      })
+      .mockResolvedValueOnce({ data: { type: "file", sha: "1", content: b64(project({ id: "a", name: "A" })) } })
+      .mockResolvedValueOnce({ data: { type: "file", sha: "2", content: b64(project({ id: "b", name: "B", archived: true })) } });
+    const list = await listAllProjects();
+    expect(list.map((p) => p.name)).toEqual(["A", "B"]);
   });
 
   it("writeProject sends base64 content with the expected sha and returns the new sha", async () => {

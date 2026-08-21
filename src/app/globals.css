@@ -869,6 +869,92 @@ h2.sec {
   outline: none;
   border-color: var(--slip);
 }
+/* customers admin */
+.head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--soft);
+  font-weight: 600;
+  font-size: 12.5px;
+  border-radius: 8px;
+  padding: 8px 13px;
+  text-decoration: none;
+}
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+.page-note {
+  color: var(--faint);
+  font-size: 13px;
+  margin: 4px 0 0;
+  max-width: 64ch;
+}
+.cust-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+.cust-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 12px 14px;
+}
+.cust-row form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cust-rename {
+  flex: 1;
+  min-width: 240px;
+}
+.cust-rename input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--ink);
+}
+.cust-rename input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.cust-count {
+  color: var(--faint);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.cust-delete select {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-size: 12.5px;
+  font-family: inherit;
+  color: var(--ink);
+  max-width: 180px;
+}
+.cust-row .form-error {
+  flex-basis: 100%;
+}
 .stamp-link {
   color: var(--accent);
   text-decoration: none;

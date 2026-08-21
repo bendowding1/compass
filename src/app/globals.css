@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light;
   --bg: #fbfaf8;
   --surface: #ffffff;
   --ink: #1a1d21;
@@ -8,11 +9,81 @@
   --line2: #efede8;
   --accent: #0f766e;
   --accent-tint: #e5f1ef;
+  --accent-deep: #0b5650;
+  --on-accent: #ffffff;
   --slip: #b4541e;
   --slip-tint: #f6e9e1;
   --plan: #8a8f97;
   --plan-tint: #f0eee9;
   --upcoming: #c7c2b8;
+  --empty-bg: #fcfbf9;
+  --avatar-bg: #d9d4cb;
+  --avatar-ink: #4a4640;
+  --tav-bg: #e7e0d4;
+  --tav-ink: #5a5346;
+}
+
+/*
+ * Dark palette. Applies when the OS prefers dark (unless the user explicitly
+ * chose light via the top-bar toggle) and when the user explicitly chose dark.
+ * The two blocks below must stay identical; layout.tsx sets data-theme from
+ * localStorage before first paint.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #15171a;
+    --surface: #1d2024;
+    --ink: #e6e4df;
+    --soft: #a6abb3;
+    --faint: #7d838c;
+    --line: #33373d;
+    --line2: #2a2d32;
+    --accent: #26b3a2;
+    --accent-tint: #123430;
+    --accent-deep: #86ddd1;
+    --on-accent: #0b1f1c;
+    --slip: #de8354;
+    --slip-tint: #3b2418;
+    --plan: #8b919a;
+    --plan-tint: #2b2e33;
+    --upcoming: #4b5058;
+    --empty-bg: #191c1f;
+    --avatar-bg: #3b4046;
+    --avatar-ink: #d3d7dc;
+    --tav-bg: #403c33;
+    --tav-ink: #d6d0c2;
+  }
+  :root:not([data-theme="light"]) .logo-icon {
+    filter: brightness(1.35);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #15171a;
+  --surface: #1d2024;
+  --ink: #e6e4df;
+  --soft: #a6abb3;
+  --faint: #7d838c;
+  --line: #33373d;
+  --line2: #2a2d32;
+  --accent: #26b3a2;
+  --accent-tint: #123430;
+  --accent-deep: #86ddd1;
+  --on-accent: #0b1f1c;
+  --slip: #de8354;
+  --slip-tint: #3b2418;
+  --plan: #8b919a;
+  --plan-tint: #2b2e33;
+  --upcoming: #4b5058;
+  --empty-bg: #191c1f;
+  --avatar-bg: #3b4046;
+  --avatar-ink: #d3d7dc;
+  --tav-bg: #403c33;
+  --tav-ink: #d6d0c2;
+}
+:root[data-theme="dark"] .logo-icon {
+  filter: brightness(1.35);
 }
 
 * {
@@ -83,12 +154,12 @@ a {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: #d9d4cb;
+  background: var(--avatar-bg);
   display: grid;
   place-items: center;
   font-size: 11px;
   font-weight: 600;
-  color: #4a4640;
+  color: var(--avatar-ink);
 }
 .signout {
   color: var(--soft);
@@ -98,6 +169,44 @@ a {
 .signout:hover {
   color: var(--accent);
   text-decoration: underline;
+}
+/* theme toggle: the icon shows the theme you would switch TO, and is picked by
+   CSS (not client state) so server-rendered HTML never mismatches. */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--soft);
+  font-size: 14px;
+  line-height: 1;
+  font-family: inherit;
+  padding: 0;
+}
+.theme-toggle:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+.theme-toggle .sun {
+  display: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .sun {
+    display: inline;
+  }
+  :root:not([data-theme="light"]) .theme-toggle .moon {
+    display: none;
+  }
+}
+:root[data-theme="dark"] .theme-toggle .sun {
+  display: inline;
+}
+:root[data-theme="dark"] .theme-toggle .moon {
+  display: none;
 }
 
 /* header */
@@ -180,7 +289,7 @@ a {
 }
 .life span.on {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 .stamp {
   margin-left: auto;
@@ -260,12 +369,12 @@ h2.sec {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #e7e0d4;
+  background: var(--tav-bg);
   display: grid;
   place-items: center;
   font-size: 10px;
   font-weight: 700;
-  color: #5a5346;
+  color: var(--tav-ink);
 }
 .tname {
   font-weight: 600;
@@ -319,7 +428,7 @@ h2.sec {
 }
 .st.shipped {
   background: var(--accent-tint);
-  color: #0b5650;
+  color: var(--accent-deep);
 }
 .st.test {
   background: var(--slip-tint);
@@ -383,7 +492,7 @@ h2.sec {
 .step.done .knob {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 .step.cur .knob {
   border-color: var(--slip);
@@ -458,7 +567,7 @@ h2.sec {
   border: 1px dashed var(--line);
   border-radius: 11px;
   padding: 20px;
-  background: #fcfbf9;
+  background: var(--empty-bg);
   color: var(--soft);
   font-size: 13px;
 }
@@ -471,7 +580,7 @@ h2.sec {
   align-items: center;
   gap: 7px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-weight: 600;
   font-size: 12.5px;
   border: none;
@@ -573,7 +682,7 @@ h2.sec {
 }
 .filters button.on {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 /* milestone timeline */
@@ -742,7 +851,7 @@ h2.sec {
   align-items: center;
   gap: 6px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-weight: 600;
   font-size: 12px;
   border: none;
